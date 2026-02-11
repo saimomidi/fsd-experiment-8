@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Digit Prediction Upload</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 30px;
+    background: #f5f5ff;
+}
+
+.container {
+    background: white;
+    border-radius: 8px;
+    padding: 40px;
+    max-width: 450px;
+    margin: auto;
+    box-shadow: 0 5px 15px #aaa;
+    text-align: center;
+}
+
+button {
+    padding: 8px 15px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Upload Image for Digit Recognition</h2>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required><br><br>
+        <button type="submit">Predict</button>
+    </form>
+
+    <div id="result"></div>
+</div>
+
+<script>
+document.getElementById('uploadForm').onsubmit = async function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    try {
+        const res = await fetch('/predict', {
+            method: 'POST',
+            body: formData
+        });
+
+        const out = await res.json();
+
+        document.getElementById('result').innerHTML =
+            out.prediction !== undefined
+            ? `<p>Predicted Digit: <b>${out.prediction}</b></p>
+               <img src="/static/uploads/${out.filename}" width="100">`
+            : `<span style="color:red;">${out.error}</span>`;
+
+    } catch (error) {
+        document.getElementById('result').innerHTML =
+            `<span style="color:red;">Server error</span>`;
+    }
+};
+</script>
+
+</body>
+</html>
